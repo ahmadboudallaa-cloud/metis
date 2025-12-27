@@ -276,3 +276,139 @@ function menuProjets() {
         if ($c == '7') return;
     }
 }
+function menuActivites() {
+    while (true) {
+        echo "\n--- ACTIVITES ---\n";
+        echo "1. Ajouter\n";
+        echo "2. Lister\n";
+        echo "3. Consulter\n";
+        echo "4. Modifier\n";
+        echo "5. Supprimer\n";
+        echo "6. Retour\n";
+        echo "Choix : ";
+        $c = trim(fgets(STDIN));
+
+        if ($c == '1') {
+            echo "Nom : "; $n = trim(fgets(STDIN));
+            echo "Description : "; $d = trim(fgets(STDIN));
+            echo "Date (YYYY-MM-DD HH:MM:SS) : "; $da = trim(fgets(STDIN));
+            echo "Durée (heures) : "; $dh = trim(fgets(STDIN));
+            echo "Statut (planifiee/en_cours/terminee/annulee) : "; $s = trim(fgets(STDIN));
+            echo "Projet ID : "; $p = trim(fgets(STDIN));
+
+            try {
+                $a = new Activite($n, $d, $da, $dh, $s, $p);
+                $id = $a->create();
+                echo " Activité ajoutée (ID: $id)\n";
+            } catch (\Exception $e) {
+                echo " Erreur : " . $e->getMessage() . "\n";
+            }
+        }
+
+        if ($c == '2') {
+            try {
+                $activites = Activite::getAll();
+                if (empty($activites)) {
+                    echo "Aucune activité enregistrée.\n";
+                } else {
+                    foreach ($activites as $a) {
+                        echo "{$a['id']} | {$a['nom']} | projet {$a['projet_id']}\n";
+                    }
+                }
+            } catch (\Exception $e) {
+                echo " Erreur : " . $e->getMessage() . "\n";
+            }
+        }
+
+        
+        if ($c == '3') {
+            echo "ID : ";
+            $id = trim(fgets(STDIN));
+            try {
+                $a = Activite::findById($id);
+                if ($a) {
+                    echo "ID: {$a['id']}\n";
+                    echo "Nom: {$a['nom']}\n";
+                    echo "Description: {$a['description']}\n";
+                    echo "Date: {$a['date_activite']}\n";
+                    echo "Durée: {$a['duree_heures']} heures\n";
+                    echo "Statut: {$a['statut']}\n";
+                    echo "Projet ID: {$a['projet_id']}\n";
+                } else {
+                    echo " Activité introuvable\n";
+                }
+            } catch (\Exception $e) {
+                echo " Erreur : " . $e->getMessage() . "\n";
+            }
+        }
+
+        if ($c == '4') {
+            echo "ID : ";
+            $id = trim(fgets(STDIN));
+            try {
+                $old = Activite::findById($id);
+                if (!$old) { 
+                    echo " Activité introuvable\n"; 
+                    continue; 
+                }
+
+                echo "Nom ({$old['nom']}): "; $n = trim(fgets(STDIN));
+                if (empty($n)) $n = $old['nom'];
+                
+                echo "Description ({$old['description']}): "; $d = trim(fgets(STDIN));
+                if (empty($d)) $d = $old['description'];
+                
+                echo "Date ({$old['date_activite']}): "; $da = trim(fgets(STDIN));
+                if (empty($da)) $da = $old['date_activite'];
+                
+                echo "Durée ({$old['duree_heures']}): "; $dh = trim(fgets(STDIN));
+                if (empty($dh)) $dh = $old['duree_heures'];
+                
+                echo "Statut ({$old['statut']}): "; $s = trim(fgets(STDIN));
+                if (empty($s)) $s = $old['statut'];
+                
+                echo "Projet ID ({$old['projet_id']}): "; $p = trim(fgets(STDIN));
+                if (empty($p)) $p = $old['projet_id'];
+
+                $a = new Activite($n, $d, $da, $dh, $s, $p);
+                $a->update($id);
+                echo " Activité modifiée\n";
+            } catch (\Exception $e) {
+                echo " Erreur : " . $e->getMessage() . "\n";
+            }
+        }
+
+  
+        if ($c == '5') {
+            echo "ID : ";
+            $id = trim(fgets(STDIN));
+            try {
+                Activite::delete($id);
+                echo "✔ Activité supprimée\n";
+            } catch (\Exception $e) {
+                echo " Erreur : " . $e->getMessage() . "\n";
+            }
+        }
+
+        if ($c == '6') return;
+    }
+}
+
+echo "\n========================================\n";
+echo "   GESTION DE PROJETS - APPLICATION\n";
+echo "========================================\n";
+
+while (true) {
+    menuPrincipal();
+    $c = trim(fgets(STDIN));
+
+    if ($c == '1') menuMembres();
+    elseif ($c == '2') menuProjets();
+    elseif ($c == '3') menuActivites();
+    elseif ($c == '4') {
+        echo "\n Au revoir !\n";
+        exit(0);
+    } else {
+        echo " Choix invalide\n";
+    }
+}
